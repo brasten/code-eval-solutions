@@ -32,8 +32,19 @@ describe PrimeNumberFinder do
       expect( finder.previous_primes(351) ).to eql(expected)
     end
   end
+end
 
-  
+# The format of the output is an explicit requirement, so it's worth testing if testing is
+# easy to accomplish. Thankfully it is.
+#
+describe "Formatter#[values]" do
+  it "returns a comma-delimited string with values (no spaces between values)" do
+    arr_one = [1,2,3,4,5,6,7]
+    arr_two = ["Babylon",5,"DeepSpace",9,"HandsOfBlue",4]
+    
+    expect( Formatter[arr_one] ).to eql("1,2,3,4,5,6,7")
+    expect( Formatter[arr_two] ).to eql("Babylon,5,DeepSpace,9,HandsOfBlue,4")
+  end
 end
 
 
