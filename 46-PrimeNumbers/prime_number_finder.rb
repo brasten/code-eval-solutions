@@ -1,31 +1,46 @@
-# An implementation of caching that always misses. A poor caching strategy, obviously.
-#
-class NoCache
-  def get(subject, &block)
-    # just do the thing, return the data
-    block[subject]
-  end
-end
-
 class PrimeNumberFinder
-  attr_reader :cache
   
-  def initialize(cache: NoCache.new)
-    @cache = cache
-  end
-  
+  # Reversing course a bit:
+  #
+  # Caching may be useful but was an unnecessary pre-optimization; recursion
+  # is probably not the right approach here.
+  #
+  # Instead focusing on reducing operations to a minimum using obvious prime-finding rules:
+  # - even numbers are out
+  # - only factors less than the square-root of the subject should be checked
+  # - ... and then only prime factors.
+  #
   def previous_primes( number )
     # Base cases
     return [] if number <= 2
     return [2] if number == 3
     
-    # Still brute-force, but recursively brute force with CACHING! :-)
-    @cache.get(number - 1) do |subject|
-      previous_primes(subject).tap do |primes|
-        primes << subject if (2...subject).none? { |factor| subject % factor == 0 }
+    primes = [2]
+
+    subject = 3
+    while( subject < number ) #skipping all even numbers
+      found_factor = false
+      factor_index = 0
+      
+      factor = primes[factor_index]
+      while( factor && (factor <= Math.sqrt(subject).ceil) )
+        if subject % factor == 0
+          found_factor = true
+          break
+        end
+
+        factor_index += 1
+        factor = primes[factor_index]
       end
+
+      primes << subject unless found_factor
+            
+      subject += 2
     end
+    
+    primes
   end
+  
 end
 
 Formatter = ->(values) {
