@@ -31,7 +31,7 @@ describe PrimeNumberFinder do
                     
       expect( finder.previous_primes(351) ).to eql(expected)
     end
-  end
+  end  
 end
 
 # The format of the output is an explicit requirement, so it's worth testing if testing is

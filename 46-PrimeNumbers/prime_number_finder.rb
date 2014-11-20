@@ -14,33 +14,47 @@ class PrimeNumberFinder
     # Base cases
     return [] if number <= 2
     return [2] if number == 3
-    
-    primes = [2]
 
+    primes = [2]
+    
     subject = 3
     while( subject < number ) #skipping all even numbers
       found_factor = false
       factor_index = 0
       
-      factor = primes[factor_index]
-      while( factor && (factor <= Math.sqrt(subject).ceil) )
+      factor_ceiling = Math.sqrt(subject).ceil
+      factor         = primes[factor_index]
+      
+      while( factor && (factor <= factor_ceiling) )
         if subject % factor == 0
           found_factor = true
           break
         end
-
+        
         factor_index += 1
         factor = primes[factor_index]
       end
-
+      
       primes << subject unless found_factor
-            
+      
       subject += 2
     end
     
     primes
   end
   
+  class PrimeCandidateIterator
+    def initialize
+      @next = 2
+    end
+    
+    def next
+      ret_val = @next
+      
+      @next = (@next == 2) ? 3 : @next += 2
+      
+      ret_val      
+    end
 end
 
 Formatter = ->(values) {
