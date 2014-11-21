@@ -90,6 +90,6 @@ end
 #
 if __FILE__==$0
   open( ARGV.shift ).each_line do |line|
-    puts Formatter[ Primes[line.to_i] ]
+    puts Formatter[ Primes[line.to_i] ] unless line.chomp.empty?
   end
 end
