@@ -15,28 +15,25 @@ class PrimeNumberFinder
     return [] if number <= 2
     return [2] if number == 3
 
-    primes = [2]
-    number_iter = PrimeCandidateIterator.new(start: 3, max: (number-1))
+    limiter   = ->(p) { Math.sqrt(p).ceil }
+    numbers   = PrimeCandidateIterator.new(start: 3, max: (number-1))
+    primes    = RewindablePrimesIterator.new([2])
     
-    while subject = number_iter.next
-      factor_iter = FactorCandidateIterator.new(primes, subject)
-      found_factor = false
+    while subject = numbers.next
+      primes.rewind_with_limit( limiter[subject] )
       
-      while factor = factor_iter.next
-        if subject % factor == 0
-          found_factor = true
-          break
-        end
+      while factor = primes.next
+        primes.add_prime(subject) if subject % factor == 0
       end
-      
-      primes << subject unless found_factor
     end
     
     primes
   end
   
-  # Easily iterate over numbers that might be primes. This way we can skip numbers that
-  # couldn't possibly be primes (even numbers, 0, 1).
+  # Easily iterate over numbers that might be primes.
+  #
+  # Current implementation only returns 2, 3, and all other 
+  # odd numbers.
   #
   class PrimeCandidateIterator
     def initialize(start:nil, max:nil)
@@ -55,27 +52,38 @@ class PrimeNumberFinder
     end
   end
   
-  # Easily iterate over a subset of prime numbers that could be factors
-  # of the provided subject
+  # Multi-responsibility object -- iterates and collects prime numbers.
+  # 
+  # This is not a great OO principle, but it serves our purpose. Minimizes
+  # allocations.
   #
-  class FactorCandidateIterator
-    def initialize(primes, subject)
-      @index = 0
-      @primes = primes  # .dup if thread-safety is more important than perf.
-      
-      # only need to check factors up to the square root
-      # of the subject
-      @max_factor = Math.sqrt(subject).ceil
+  class RewindablePrimesIterator
+    attr_reader :primes
+    
+    def initialize(primes)
+      @primes, @index, @limit = primes, 0, 0
+    end
+    
+    def rewind_with_limit(limit)
+      @limit, @index = limit, 0
     end
     
     # @return [Number, nil]
     #
     def next
-      factor = @primes[@index]
-      return nil if factor.nil? || factor > @max_factor
+      factor = primes[@index]
+      return nil if factor.nil? || factor > @limit
       
       @index += 1
       factor
+    end
+    
+    # Adds a number to the collection of primes. Also, fast-forwards
+    # the iterator so that subsequent #next() calls return nil.
+    #
+    def add_prime(prime)
+      @limit = 0
+      primes << prime
     end
   end
 end
