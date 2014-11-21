@@ -1,11 +1,13 @@
+# Repo available at: https://github.com/brasten/code-eval-solutions/tree/master/46-PrimeNumbers
+
 # Easily iterate over numbers that might be primes.
 #
 # Current implementation only returns 2, 3, and all other 
 # odd numbers.
 #
 class PrimeCandidateIterator
-  def initialize(start:nil, max:nil)
-    @max, @next = max, (start || 2)
+  def initialize(opts={})
+    @max, @next = opts[:max], (opts[:start] || 2)
   end
   
   def next
